@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Order;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,7 +27,21 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $orders = Order::with(['muestras_aguas.identificacionMuestra'])
+    ->where('aguas_alimentos', 'Aguas')
+    ->orderBy('folio', 'desc')
+    ->where('numero_muestras', '>', '0')
+    ->paginate(40);
+    $lessParamsOrders = [];
+    foreach ($orders as $order) {
+        array_push($lessParamsOrders, [
+            'key' => $order->folio,
+            'folio' => $order->folio,
+            'numero_muestras' => $order->numero_muestras,
+            'aguas_alimentos' => $order->aguas_alimentos,
+        ]);
+    }
+    return Inertia::render('Dashboard', ['lessParamsOrders' => $lessParamsOrders]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
