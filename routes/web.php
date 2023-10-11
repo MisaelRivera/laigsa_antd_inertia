@@ -27,7 +27,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $orders = Order::with(['muestras_aguas.identificacionMuestra'])
+    $orders = Order::with(['muestras_aguas.identificacionMuestra', 'cliente'])
     ->where('aguas_alimentos', 'Aguas')
     ->orderBy('folio', 'desc')
     ->where('numero_muestras', '>', '0')
@@ -41,7 +41,7 @@ Route::get('/dashboard', function () {
             'aguas_alimentos' => $order->aguas_alimentos,
         ]);
     }
-    return Inertia::render('Dashboard', ['lessParamsOrders' => $lessParamsOrders]);
+    return Inertia::render('Dashboard', ['lessParamsOrders' => $orders]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
